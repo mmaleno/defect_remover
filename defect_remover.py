@@ -64,7 +64,6 @@ def align_images(im_secondary, im_base):
     im_secondary: image to be aligned
     
     im_base: mostly square image
-
     """
 
     MAX_FEATURES = 100000
@@ -115,6 +114,19 @@ def align_images(im_secondary, im_base):
     return im1Reg, imMatches
 
 def detect_differences(img1, img2, th):
+    """Detect the differences between images img1 and img2 at threshold th.
+       Outputs the common image with (0,0,0)s where differences are, the 
+       image that represents the locations of the differences, and the list
+       of detected difference contours.
+        
+    Parameters
+    ---------
+    img1: first OpenCV image object to be compared
+
+    img2: second OpenCV image object to be compared (already aligned)
+    
+    th: integer threshold value to detect differences
+    """
     # create different templates for the differences
     diff_orig = cv2.absdiff(img1, img2)
     mask = cv2.cvtColor(diff_orig, cv2.COLOR_BGR2GRAY)
@@ -140,6 +152,20 @@ def detect_differences(img1, img2, th):
     return canvas_holes, diff_image, contours
 
 def remove_bad_contours(img1, img2, contours, canvas_holes):
+    """Remove detected differences, determine which image has the real data
+    for each difference, and combine the detected real data with the base image.
+    Outputs the calculated image with real data in place of the detected differences.
+
+    Parameters
+    ---------
+    img1: first OpenCV image object to be compared
+
+    img2: second OpenCV image object to be compared (already aligned)
+    
+    contours: list of contour coordinates from detect_differences()
+
+    canvas_holes: OpenCV image object of base image with (0,0,0)s at difference coordinates
+    """
     mask = np.zeros(img1.shape, np.uint8)
     canvas_filled = np.zeros(img1.shape, dtype='uint8')
 
@@ -174,9 +200,6 @@ def main():
 
     im_base, im_secondary = load_images(sys.argv[2], sys.argv[3])
     print("Images loaded\n")
-
-    print(sys.argv[2])
-    print(sys.argv[3])
     
     im_secondary_rotated, im_matches = align_images(im_secondary, im_base)
 
@@ -200,8 +223,7 @@ def main():
             str(time.localtime().tm_sec).zfill(2)
     
     cv2.imwrite("output_"+datetime+sys.argv[2][sys.argv[2].find('.'):],cv2.cvtColor(output, cv2.COLOR_BGR2RGB))
-    print("Done!\n")
+    print("\nDone!\n")
 
 if __name__ == '__main__':
     main()
-
