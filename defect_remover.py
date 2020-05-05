@@ -203,12 +203,15 @@ def main():
     
     im_secondary_rotated, im_matches = align_images(im_secondary, im_base)
 
+    im_base_copy = im_base.copy()
+    im_secondary_rotated_copy = im_secondary_rotated.copy() # to save before ROIs are added
+
     base_holes, diff_image, contours = detect_differences(im_base, im_secondary_rotated, sys.argv[1])
 
     output, contour_img, img1_boxes, img2_boxes = remove_bad_contours(im_base, im_secondary_rotated, contours, base_holes)
 
     print("Displaying images...\n")
-    show_images([im_base,im_secondary,im_matches,im_secondary_rotated,base_holes,diff_image,img1_boxes,img2_boxes, \
+    show_images([im_base_copy,im_secondary,im_matches,im_secondary_rotated_copy,base_holes,diff_image,img1_boxes,img2_boxes, \
     output,contour_img], \
                 win_name = 'All Steps', cols = 5, titles = ['Base Image', 'Secondary Image', \
                 'Matches Diagram', 'Rotated Secondary', 'Base Template with Holes', 'Difference Image', \
